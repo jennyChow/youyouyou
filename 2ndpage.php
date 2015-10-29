@@ -46,6 +46,7 @@ http://www.templatemo.com/preview/templatemo_397_concept
 <![endif]-->
 <script src="blocksit.min.js"></script>
 	<script src="js/bootstrap.js"></script>
+	<script src="js/2ndpage.js"></script>
 <script>
 $(document).ready(function() {
 	//vendor script
@@ -237,52 +238,119 @@ $(document).ready(function() {
 									</div>
 									<div class="modal-body">
 										<img src="images/products/<?php echo $idArray[$i] ?>.jpg" class="img-responsive img-rounded center-block" alt=""/>
-										<form>
-											<div class="form-group">
-												<label for="message-text" class="control-label">Message:</label>
-												<textarea class="form-control" id="message-text"></textarea>
-											</div>
-										</form>
-									</div>
-
-									<?php
-									$comments = array();
-									$sql = "SELECT content, email FROM comment WHERE product_id = '$idArray[$i]'";
-									$r = $conn->query($sql);
-
-									if ($r->num_rows > 0) {
-										// output data of each row
-										while($row = $r->fetch_assoc()) {
-											$comments[] = array(
-												'comment' => $row["content"],
-												'email' => $row['email']
-											);
-										}
-									}
-									foreach ($comments as $comment) {
-
-										$current_comment = $comment['comment'];
-										$current_email = $comment['email'];
-
-										$sql = "SELECT username FROM user WHERE email = '$current_email'";
+										<?php
+										$comments = array();
+										$sql = "SELECT content, email FROM comment WHERE product_id = '$idArray[$i]'";
 										$r = $conn->query($sql);
-										$username = null;
+
 										if ($r->num_rows > 0) {
 											// output data of each row
 											while($row = $r->fetch_assoc()) {
-												$username = $row['username'];
-												break;
+												$comments[] = array(
+													'comment' => $row["content"],
+													'email' => $row['email']
+												);
 											}
 										}
-										echo $current_comment;
-										echo $username;
+										foreach ($comments as $comment) {
 
-									}
-									?>
+											$current_comment = $comment['comment'];
+											$current_email = $comment['email'];
+
+											$sql = "SELECT username FROM user WHERE email = '$current_email'";
+											$r = $conn->query($sql);
+											$username = null;
+											if ($r->num_rows > 0) {
+												// output data of each row
+												while($row = $r->fetch_assoc()) {
+													$username = $row['username'];
+													break;
+												}
+											}
+
+										}
+										?>
+
+										<div>
+											<div class="comment-title">
+												comment
+											</div>
+											<p class="comment-user">
+												<span class="userName">UserName:</span>  <?php echo $username;?>
+											</p>
+											<p class="comment-content">
+												<?php echo $current_comment;?>
+											</p>
+										</div>
+
+
+
+
+										<!--php for saving comment content-->
+										<?php
+										if (isset($_POST["submit"])) {
+											$message = $_POST['message-text'];
+											//$current_comment = addslashes ($_POST['message-text']);
+
+											//$sql = "UPDATE comment SET content=$message WHERE email = $current_email";
+
+											$sql = "UPDATE comment SET content=$message";
+
+											//$body = "From: $name\n E-Mail: $email\n Message:\n $message";
+
+
+											//Check if message has been entered
+											if (!$_POST['message']) {
+												$errMessage = 'Please enter your message';
+												console.log("aaaaaa");
+											}
+
+										    // If there are no errors, send the email
+											if ( !$errMessage) {
+												if (mail ($message)) {
+													$result='<div class="alert alert-success">Thank You! I will be in touch</div>';
+												} else {
+													$result='<div class="alert alert-danger">Sorry there was an error sending your message. Please try again later</div>';
+												}
+											}
+										}
+										?>
+									</div>
+
+
+									<!--<form action="welcome.php" method="post">
+										Name: <input type="text" name="name"><br>
+										E-mail: <input type="text" name="email"><br>
+										<input type="submit">
+									</form>-->
+
 
 									<div class="modal-footer">
+										<form  method="post">
+											<div class="form-group">
+												<!--<label for="message-text" class="control-label">Message:</label>-->
+												<textarea class="form-control" id="message-text" name="message-text">
+													<?php echo htmlspecialchars($_POST['message-text']);?>
+												</textarea>
+												<?php echo "<p class='text-danger'>$errMessage</p>";?>
+											</div>
+
+											<!--<div class="form-group">
+												<div class="col-sm-10 col-sm-offset-2">
+													<input id="submit" name="submit" type="submit" value="Send" class="btn btn-primary">
+												</div>
+											</div>-->
+
+										</form>
+										<form>
+											<div class="form-group">
+												<div class="col-sm-10 col-sm-offset-2">
+													<input id="submit" name="submit" type="submit" value="Comment" class="btn btn-primary">
+												</div>
+											</div>
+										</form>
 										<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-										<button type="button" class="btn btn-primary">Comment</button>
+
 									</div>
 
 								</div>
